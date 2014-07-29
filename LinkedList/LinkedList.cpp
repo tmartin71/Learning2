@@ -10,7 +10,7 @@ class Node {
 
 public:
 	int value;
-	Node *next;
+	Node* next;
 
 	Node::Node() {
 		value = NULL;
@@ -21,6 +21,11 @@ public:
 		value = initValue;
 		next = NULL;
 	}
+	/*
+	Node::~Node() {
+		delete value;
+		delete next;
+	}; */
 } ;
 
 
@@ -28,9 +33,44 @@ public:
 class LinkedList {
 
 public:
-	Node *start;
+	Node* start;
+	Node* currentNode;
 
 	LinkedList::LinkedList() {
+		start = NULL;
+		currentNode = NULL;
+	}
+		
+	void Traverse( int index = 0 )
+	{
+		currentNode = start;
+		int count = 0;
+
+		while ( currentNode->next != NULL )
+		{
+			++count;
+
+			if ( index == count )
+				break;
+
+			currentNode = currentNode->next;
+		}
+	}
+
+	void PrintLinkedList()
+	{
+		Node* printNode = start;
+		cout << "START" << endl;
+		while ( printNode->next != NULL )
+		{
+			cout << printNode->value << endl;
+			printNode = printNode->next;
+		}
+
+		//fucking fenceposts
+		cout << printNode->value << endl;
+		cout << "END \n" << endl;
+
 	}
 
 	void Append(int newValue)
@@ -40,36 +80,59 @@ public:
 		{
 			start = newNode;
 		} else {
-			Node* currentNode = start;
-			while ( currentNode->next != NULL) {
-				currentNode = currentNode->next;
-			}
+			Traverse();
 			currentNode->next = newNode;
-
 		}
 
 	}
-	
-	void Traverse()
+
+	void Insert(int newValue, int index) 
 	{
-		Node* currentNode = start;
-		while ( currentNode->next != NULL)
+		Node* newNode = new Node(newValue);
+		if ( start == NULL )
 		{
-			cout << currentNode->value << endl;
-			currentNode = currentNode->next;	
+			start = newNode;
+		} else if ( currentNode->next == NULL ) {
+			Append( newValue );
+		} else {
+			Traverse( index );
+			//point the new node at the node following currentNode
+			newNode->next = currentNode->next;
+
+			//point the currentNode to the new Node
+			currentNode->next = newNode;
 		}
-		//fucking fenceposts
-		cout << currentNode->value << endl;
-		return *currentNode;
 	}
 
+	//TODO: deal with the duplicates case; fix memory leak (need to use a destructor); and it doesn't like the endpoints
+	void RemoveByValue( int Remove )
+	{
+
+		// loop through the list and look for the value to remove
+		while ( currentNode->next != NULL ) {
+			// if the next next node's value matches Remove, remove it
+			if ( (currentNode->next)->value == Remove ) {
+				// save the node we're going to delete because we need its pointer
+				Node* temp = currentNode->next;
+				//remove the next node
+				//currentNode->next = NULL;
+				// point the current node at the node after the one being removed
+				currentNode->next = temp->next;
+			}
+			//step forward
+			currentNode = currentNode->next;
+		}
+		
+	}
 } ;
 
 
 
 int main()
 {
+	//create an empty list
 	LinkedList myList;
+
 	int N = 5;
 
 	for (int i = 0; i < N; ++i)
@@ -77,7 +140,17 @@ int main()
 		myList.Append(i);
 	}
 
-	myList.Traverse();
+	myList.PrintLinkedList();
+
+	//myList.Insert(500, 200);
+
+	//myList.PrintLinkedList();
+
+	myList.RemoveByValue(4);
+
+	myList.PrintLinkedList();
+
+	
 
 	return 0;
 }
